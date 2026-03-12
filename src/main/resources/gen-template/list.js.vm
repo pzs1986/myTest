@@ -1,0 +1,125 @@
+$(function () {
+    $("#jqGrid").jqGrid({
+        url: baseURL + '${moduleName}/${pathName}/list',
+        datatype: "json",
+        colModel: [			
+#foreach($column in $columns)
+#if($column.columnName == $pk.columnName)
+			{ label: '${column.firstLowercaseAttrName}', name: '${column.firstLowercaseAttrName}', index: '${column.columnName}', width: 50, key: true },
+#else
+			{ label: '${column.comments}', name: '${column.firstLowercaseAttrName}', index: '${column.columnName}', width: 80 }#if($velocityCount != $columns.size()), #end
+			
+#end			
+#end
+        ],
+		viewrecords: true,
+        height: 385,
+        rowNum: 10,
+		rowList : [10,30,50],
+        rownumbers: true, 
+        rownumWidth: 25, 
+        autowidth:true,
+        multiselect: true,
+        pager: "#jqGridPager",
+        jsonReader : {
+            root: "entity.list",
+            page: "entity.currPage",
+            total: "entity.totalPage",
+            records: "entity.totalCount"
+        },
+        prmNames : {
+            page:"page", 
+            rows:"limit", 
+            order: "order"
+        },
+        gridComplete:function(){
+        	//隐藏grid底部滚动条
+        	$("#jqGrid").closest(".ui-jqgrid-bdiv").css({ "overflow-x" : "hidden" }); 
+        }
+    });
+});
+
+var vm = new Vue({
+	el:'#rrapp',
+	data:{
+		showList: true,
+		title: null,
+		${classname}: {}
+	},
+	methods: {
+		query: function () {
+			vm.reload();
+		},
+		add: function(){
+			vm.showList = false;
+			vm.title = $.i18n.map['system.common.add'];
+			vm.${classname} = {};
+		},
+		update: function (event) {
+			var $pk.firstLowercaseAttrName = getSelectedRow();
+			if($pk.firstLowercaseAttrName == null){
+				return ;
+			}
+			vm.showList = false;
+            vm.title = $.i18n.map['system.common.update'];
+            
+            vm.getInfo(${pk.firstLowercaseAttrName})
+		},
+		exportExcel: function(){
+			location.href = baseURL+"${moduleName}/${pathName}/exportExcel";
+		},
+		saveOrUpdate: function (event) {
+			var url = vm.${classname}.${pk.firstLowercaseAttrName} == null ? "${moduleName}/${pathName}/save" : "${moduleName}/${pathName}/update";
+			$.ajax({
+				type: "POST",
+			    url: baseURL + url,
+                contentType: "application/json",
+			    data: JSON.stringify(vm.${classname}),
+			    success: function(r){
+			    	if(r.code === 0){
+						alert($.i18n.map['system.common.success'], function(index){
+							vm.reload();
+						});
+					}else{
+						alert(r.message);
+					}
+				}
+			});
+		},
+		del: function (event) {
+			var ${pk.firstLowercaseAttrName}s = getSelectedRows();
+			if(${pk.firstLowercaseAttrName}s == null){
+				return ;
+			}
+			confirm($.i18n.map['system.common.isDel'], function(){
+				$.ajax({
+					type: "POST",
+				    url: baseURL + "${moduleName}/${pathName}/delete",
+                    contentType: "application/json",
+				    data: JSON.stringify(${pk.firstLowercaseAttrName}s),
+				    success: function(r){
+						if(r.code == 0){
+							alert($.i18n.map['system.common.success'], function(index){
+								$("#jqGrid").trigger("reloadGrid");
+							});
+						}else{
+							alert(r.message);
+						}
+					}
+				});
+			});
+		},
+		getInfo: function(${pk.firstLowercaseAttrName}){
+			$.get(baseURL + "${moduleName}/${pathName}/info/"+${pk.firstLowercaseAttrName}, function(r){
+                vm.${classname} = r.${classname};
+            });
+		},
+		reload: function (event) {
+			vm.showList = true;
+			var page = $("#jqGrid").jqGrid('getGridParam','page');
+			$("#jqGrid").jqGrid('setGridParam',{ 
+                page:page
+            }).trigger("reloadGrid");
+		}
+	}
+});

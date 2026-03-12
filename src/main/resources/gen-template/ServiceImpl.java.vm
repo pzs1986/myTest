@@ -1,0 +1,39 @@
+package ${package}.${moduleName}.service.impl;
+
+import org.springframework.stereotype.Service;
+import java.util.Map;
+import java.util.List;
+import com.baomidou.mybatisplus.mapper.EntityWrapper;
+import com.baomidou.mybatisplus.plugins.Page;
+import com.baomidou.mybatisplus.service.impl.ServiceImpl;
+import ${mainPath}.common.utils.PageUtils;
+import ${mainPath}.common.utils.Query;
+import com.baomidou.mybatisplus.mapper.Wrapper;
+import ${package}.${moduleName}.dao.${className}Dao;
+import ${package}.${moduleName}.entity.${className}Entity;
+import ${package}.${moduleName}.service.${className}Service;
+import com.fly.miku.common.excel.ExcelImportUtil;
+
+
+@Service("${classname}Service")
+public class ${className}ServiceImpl extends ServiceImpl<${className}Dao, ${className}Entity> implements ${className}Service {
+
+    @Override
+    public PageUtils queryPage(Map<String, Object> params) {
+    	Wrapper<${className}Entity> wrapper = new EntityWrapper<${className}Entity>();
+        Page<${className}Entity> page = this.selectPage(
+                new Query<${className}Entity>(params).getPage(),
+                wrapper
+        );
+        page.setTotal(this.selectCount(wrapper));
+        return new PageUtils(page);
+    }
+    
+    
+    @Override
+	public byte[] exportExcel(Map<String, Object> params) {
+		List<${className}Entity> list = this.selectList(new EntityWrapper<${className}Entity>());
+		return ExcelExportUtil.exportToBytes(list);
+	}
+
+}
