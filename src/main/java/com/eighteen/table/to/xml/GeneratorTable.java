@@ -13,17 +13,13 @@ import com.eighteen.table.to.xml.service.SysGeneratorService;
  * @email flying_miku@sina.com
  */
 public class GeneratorTable {
-
     /** 数据库用户名 */
     public static final String USERNAME = "agent_poc";
 
-    /** 数据库密码 */
     public static final String PASSWORD = "n3aZyhOce+dR0Yxz";
 
-    /** 数据库驱动类名 */
     public static final String DRIVER = "com.mysql.jdbc.Driver";
 
-    /** 数据库连接地址 */
     public static final String URL = "jdbc:mysql://10.74.8.2:3306/ai_talker?useSSL=false&useUnicode=true&characterEncoding=utf-8&zeroDateTimeBehavior=convertToNull";
 
     /**
